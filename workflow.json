@@ -1,0 +1,76 @@
+```json
+{
+  "name": "CareerPilot - Automated Job Application System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": [
+          {
+            "mode": "everyHour"
+          }
+        ],
+        "options": {}
+      },
+      "id": "1a2b3c4d-5e6f-7g8h-9i0j-k1l2m3n4o5p6",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// CareerPilot Configuration\nconst jobSearchConfig = {\n  keywords: [\"software engineer\", \"developer\", \"web developer\", \"frontend\", \"backend\"],\n  location: \"remote,new york,chicago,austin\",\n  platforms: [\"LinkedIn\", \"Indeed\", \"Glassdoor\", \"RemoteOK\"],\n  maxApplicationsPerDay: 15,\n  blacklistCompanies: [\"example-corp\", \"test-company\"],\n  excludeTitles: [\"senior\", \"lead\", \"principal\", \"director\", \"manager\", \"vp\"],\n  salaryRange: \"60000-120000\",\n  jobType: [\"full-time\", \"contract\"]\n};\n\n// Return configuration for the workflow\nreturn [\n  {\n    json: {\n      ...jobSearchConfig,\n      timestamp: new Date().toISOString(),\n      searchId: Math.random().toString(36).substr(2, 9),\n      version: \"1.0\"\n    }\n  }\n];"
+      },
+      "id": "2b3c4d5e-6f7g-8h9i-0j1k-l2m3n4o5p6q7",
+      "name": "Job Search Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.linkedin.com/jobs/search/?keywords={{$json.keywords[0]}}&location={{$json.location}}\"",
+        "options": {}
+      },
+      "id": "3c4d5e6f-7g8h-9i0j-1k2l-m3n4o5p6q7r8",
+      "name": "LinkedIn Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.indeed.com/jobs?q={{$json.keywords[0]}}&l={{$json.location}}\"",
+        "options": {}
+      },
+      "id": "4d5e6f7g-8h9i-0j1k-2l3m-n4o5p6q7r8s9",
+      "name": "Indeed Jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        680,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "5e6f7g8h-9i0j-1k2l-3m4n-o5p6q7r8s9t0",
+              "leftValue": "={{$json.title.toLowerCase()}}",
+              "rightValue": "={{$json.excludeTitles.join(',')}}\",\n              \"operator\": {\n                \"type\": \"string\",\n                \"operation\": \"notContains\"\n              }\n            },\n            {\n              \"id\": \"6f7g8h9i-0j1k-2l3m-4n5o-p6q7r8s9t0u1\",\n              \"leftValue\": \"={{$json.company.toLowerCase()}}\",\n              \"rightValue\": \"={{$json.blacklistCompanies.join(',')}}\",\n              \"operator\": {\n                \"type\": \"string\",\n                \"operation\": \"notContains\"\n              }\n            }\n          ],\n          \"combinator\": \"and\"\n        },\n        \"options\": {}\n      },\n      \"id\": \"5e6f7g8h-9i0j-1k2l-3m4n-o5p6q7r8s9t0\",\n      \"name\": \"Smart Filter\",\n      \"type\": \"n8n-nodes-base.if\",\n      \"typeVersion\": 2,\n      \"position\": [\n        900,\n        300\n      ]\n    },\n    {\n      \"parameters\": {\n        \"subject\": \"CareerPilot: Applied to {{$json.title}} at {{$json.company}}\",\n        \"body\": \"<h3>Application Submitted Successfully! 🎯</h3><br><strong>Position:</strong> {{$json.title}}<br><strong>Company:</strong> {{$json.company}}<br><strong>Location:</strong> {{$json.location}}<br><strong>Applied:</strong> {{$json.timestamp}}<br><strong>Platform:</strong> {{$json.platform}}<br><br><em>Application automated by CareerPilot</em>\",\n        \"to\": \"your-email@example.com\",\n        \"options\": {}\n      },\n      \"id\": \"6f7g8h9i-0j1k-2l3m-4n5o-p6q7r8s9t0u1\",\n      \"name\": \"Email Notification\",\n      \"type\": \"n8n-nodes-base.emailSend\",\n      \"typeVersion\": 1,\n      \"position\": [\n        1120,\n        300\n      ]\n    },\n    {\n      \"parameters\": {\n        \"operation\": \"append\",\n        \"documentId\": \"your-google-sheets-doc-id\",\n        \"sheetName\": \"Job Applications\",\n        \"columns\": {\n          \"mappingMode\": \"defineBelow\",\n          \"value\": {\n            \"timestamp\": \"={{$json.timestamp}}\",\n            \"title\": \"={{$json.title}}\",\n            \"company\": \"={{$json.company}}\",\n            \"location\": \"={{$json.location}}\",\n            \"platform\": \"={{$json.platform}}\",\n            \"status\": \"Applied\",\n            \"coverLetterUsed\": \"={{$json.personalized}}\"\n          }\n        },\n        \"options\": {}\n      },\n      \"id\": \"7g8h9i0j-1k2l-3m4n-5o6p-q7r8s9t0u1v2\",\n      \"name\": \"Google Sheets Log\",\n      \"type\": \"n8n-nodes-base.googleSheets\",\n      \"typeVersion\": 4,\n      \"position\": [\n        1120,\n        500\n      ]\n    },\n    {\n      \"parameters\": {\n        \"jsCode\": \"// CareerPilot Cover Letter Generator\nconst job = $input.first().json;\n\n// Personalize based on job title\nconst skillsMap = {\n  'software engineer': 'JavaScript, Node.js, React, Python',\n  'developer': 'full-stack development, API design, database management',\n  'web developer': 'HTML5, CSS3, JavaScript, responsive design',\n  'frontend': 'React, Vue, Angular, TypeScript, UI/UX',\n  'backend': 'Node.js, Python, SQL, AWS, microservices'\n};\n\n// Find relevant skills\nlet relevantSkills = 'software development';\nfor (const [key, skills] of Object.entries(skillsMap)) {\n  if (job.title.toLowerCase().includes(key)) {\n    relevantSkills = skills;\n    break;\n  }\n}\n\n// Generate personalized cover letter\nconst coverLetter = `Dear Hiring Manager,\n\nI am writing to express my enthusiastic application for the ${job.title} position at ${job.company}. With my extensive experience in ${relevantSkills}, I am confident that I possess the skills and expertise necessary to excel in this role and contribute significantly to your team.\n\nThroughout my career, I have successfully delivered projects that demonstrate my proficiency in modern development practices and my ability to collaborate effectively in team environments. The opportunity to bring my unique blend of technical skills and creative problem-solving to ${job.company} is particularly exciting.\n\nI am impressed by ${job.company}'s reputation and am eager to contribute to your innovative projects. I am available for an interview at your earliest convenience and look forward to discussing how my experience can benefit your organization.\n\nBest regards,\n[Your Name]`;\n\n// Return enhanced job data\nreturn {\n  ...job,\n  coverLetter: coverLetter,\n  personalized: true,\n  skillsMatched: relevantSkills,\n  applicationDate: new Date().toISOString(),\n  system: 'CareerPilot v1.0'\n};\"\n      },\n      \"id\": \"8h9i0j1k-2l3m-4n5o-6p7q-r8s9t0u1v2w3\",\n      \"name\": \"Cover Letter Generator\",\n      \"type\": \"n8n-nodes-base.code\",\n      \"typeVersion\": 2,\n      \"position\": [\n        900,\n        500\n      ]\n    },\n    {\n      \"parameters\": {\n        \"mode\": \"item\",\n        \"item\": {\n          \"overwriteFields\": [\n            \"title\",\n            \"company\",\n            \"location\",\n            \"platform\",\n            \"timestamp\"\n          ]\n        },\n        \"mergeByFields\": [\n          \"title\",\n          \"company\"\n        ],\n        \"disableDotNotation\": false,\n        \"options\": {}\n      },\n      \"id\": \"9i0j1k2l-3m4n-5o6p-7q8r-s9t0u1v2w3x4\",\n      \"name\": \"Deduplicate Jobs\",\n      \"type\": \"n8n-nodes-base.merge\",\n      \"typeVersion\": 2,\n      \"position\": [\n        680,\n        300\n      ]\n    },\n    {\n      \"parameters\": {\n        \"url\": \"https://www.glassdoor.com/Job/jobs.htm?sc.keyword={{$json.keywords[0]}}&locT=C&locId=1132348\"\",\n        \"options\": {}\n      },\n      \"id\": \"0j1k2l3m-4n5o-6p7q-8r9s-t0u1v2w3x4y5\",\n      \"name\": \"Glassdoor Jobs\",\n      \"type\": \"n8n-nodes-base.httpRequest\",\n      \"typeVersion\": 4,\n      \"position\": [\n        680,\n        600\n      ]\n    }\n  ],\n  \"connections\": {\n    \"Schedule Trigger\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Job Search Config\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Job Search Config\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Deduplicate Jobs\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"LinkedIn Jobs\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Deduplicate Jobs\",\n            \"type\": \"main\",\n            \"index\": 1\n          }\n        ]\n      ]\n    },\n    \"Indeed Jobs\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Deduplicate Jobs\",\n            \"type\": \"main\",\n            \"index\": 2\n          }\n        ]\n      ]\n    },\n    \"Glassdoor Jobs\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Deduplicate Jobs\",\n            \"type\": \"main\",\n            \"index\": 3\n          }\n        ]\n      ]\n    },\n    \"Deduplicate Jobs\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Smart Filter\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Smart Filter\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Cover Letter Generator\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ],\n        [\n          {\n            \"node\": \"Email Notification\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    },\n    \"Cover Letter Generator\": {\n      \"main\": [\n        [\n          {\n            \"node\": \"Google Sheets Log\",\n            \"type\": \"main\",\n            \"index\": 0\n          }\n        ]\n      ]\n    }\n  },\n  \"pinData\": {},\n  \"versionId\": \"1.0\",\n  \"active\": true,\n  \"settings\": {\n    \"executionOrder\": \"v1\"\n  },\n  \"staticData\": null,\n  \"tags\": [\n    \"careerpilot\",\n    \"job-application\",\n    \"automation\",\n    \"career\",\n    \"productivity\"\n  ],\n  \"updatedAt\": \"2024-01-15T10:00:00.000Z\",\n  \"createdAt\": \"2024-01-15T10:00:00.000Z\"\n}\n```
