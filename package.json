@@ -1,0 +1,22 @@
+{
+  "name": "automated-job-application-n8n",
+  "version": "1.0.0",
+  "description": "n8n workflow for automated job applications across multiple platforms",
+  "main": "workflow.json",
+  "keywords": [
+    "n8n",
+    "automation",
+    "job-search",
+    "career",
+    "productivity",
+    "workflow",
+    "applications"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/damaso1/automated-job-application-system"
+  },
+  "homepage": "https://github.com/damaso1/automated-job-application-system#readme"
+}
