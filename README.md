@@ -45,7 +45,7 @@ Get the complete package with:
 
 ## 📞 Support
 
-For setup help or questions: your-email@example.com
+For setup help or questions: your-alecdamas4@gmail.com
 
 ---
 
