@@ -1,22 +1,23 @@
+​alecdamaso@outlook.com​
 {
-  "name": "automated-job-application-n8n",
+  "name": "careerpilot-n8n",
   "version": "1.0.0",
   "description": "n8n workflow for automated job applications across multiple platforms",
   "main": "workflow.json",
   "keywords": [
     "n8n",
-    "automation",
+    "automation", 
     "job-search",
     "career",
     "productivity",
     "workflow",
     "applications"
   ],
-  "author": "Your Name",
+  "author": "Alec Damas",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/damaso1/automated-job-application-system"
+    "url": "https://github.com/damaso1/CareerPilot"
   },
-  "homepage": "https://github.com/damaso1/automated-job-application-system#readme"
+  "homepage": "https://github.com/damaso1/CareerPilot#readme"
 }
